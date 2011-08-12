@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
     while ((c = fgetc(f)) != EOF) {
         if ('\n' == c) { count++; }
     }
+    fclose(f);
     if ('\n' == c) { count--; }
     printf("%d\n", count);
     exit(0);
