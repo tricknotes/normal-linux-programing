@@ -8,7 +8,6 @@ int main(int argc, char *argv[]) {
 
     char c;
     while ((c = fgetc(f)) != EOF) {
-        printf("%c", c);
         if ('\n' == c) { count++; }
     }
     if ('\n' == c) { count--; }
