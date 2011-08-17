@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     long nlines = DEFAULT_N_LINES;
 
     // parse option
-    while ((opt = getopt_long(argc, argv, "n", longopts, NULL)) != -1) {
+    while ((opt = getopt_long(argc, argv, "n:", longopts, NULL)) != -1) {
         switch (opt) {
             case 'n':
                 nlines = atoi(optarg);
