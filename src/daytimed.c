@@ -20,16 +20,18 @@ int main(int argc, char *argv[]) {
   char *timestr;
 
   server = listen_socket(argc > 1 ? atoi(argv[1]) : DEFAULT_PORT);
-  sock = accept(server, (struct sockaddr*)&addr, &addrlen);
-  if (sock < 0) {
-    perror("accept(2)");
-    exit(1);
+  while (1) {
+    sock = accept(server, (struct sockaddr*)&addr, &addrlen);
+    if (sock < 0) {
+      perror("accept(2)");
+      exit(1);
+    }
+    time(&t);
+    tm = localtime(&t);
+    timestr = asctime(tm);
+    write(sock, timestr, strlen(timestr));
+    close(sock);
   }
-  time(&t);
-  tm = localtime(&t);
-  timestr = asctime(tm);
-  write(sock, timestr, strlen(timestr));
-  close(sock);
   close(server);
   exit(0);
 }
