@@ -270,18 +270,6 @@ static void *free_fileinfo(struct FileInfo *info) {
   free(info);
 }
 
-static void not_found(struct HTTPRequest *req, FILE *out) {
-  // TODO implement this
-}
-
-static void method_not_allowd(struct HTTPRequest *req, FILE *out) {
-  // TODO implement this
-}
-
-static void not_implemented(struct HTTPRequest *req, FILE *out) {
-  // TODO implement this
-}
-
 static void output_common_header_fields(struct HTTPRequest *req, FILE *out, char *status) {
   time_t t;
   struct tm *tm;
@@ -297,6 +285,18 @@ static void output_common_header_fields(struct HTTPRequest *req, FILE *out, char
   fprintf(out, "Date: %s\r\n", buf);
   fprintf(out, "Server: %s\r\n", SERVER_NAME, SERVER_VERSION);
   fprintf(out, "Connection: close\r\n");
+}
+
+static void not_found(struct HTTPRequest *req, FILE *out) {
+  output_common_header_fields(req, out, "404 Not Found");
+}
+
+static void method_not_allowd(struct HTTPRequest *req, FILE *out) {
+  output_common_header_fields(req, out, "405 Method Not Allowed");
+}
+
+static void not_implemented(struct HTTPRequest *req, FILE *out) {
+  output_common_header_fields(req, out, "501 Not Implemented");
 }
 
 static char *guess_content_type(struct FileInfo *info) {
