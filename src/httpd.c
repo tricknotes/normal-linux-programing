@@ -168,8 +168,23 @@ static struct HTTPHeaderField *read_header_field(FILE *in) {
   return h;
 }
 
-static long content_length(struct HTTPRequest *req) {
+static char *lookup_header_field_value(struct HTTPRequest *req, char *type) {
   // TODO implement this
+}
+
+static long content_length(struct HTTPRequest *req) {
+  char *value;
+  long length;
+
+  value = lookup_header_field_value(req, "Content-Length");
+  if (!value) {
+    return 0;
+  }
+  length = atoi(value);
+  if (length < 0) {
+    log_exit("negative Content-Length value");
+  }
+  return length;
 }
 
 static struct HTTPRequest *read_request(FILE *in) {
