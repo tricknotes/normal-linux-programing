@@ -258,6 +258,11 @@ static struct FileInfo *get_fileinfo(char *docroot, char *urlpath) {
   return info;
 }
 
+static void *free_fileinfo(struct FileInfo *info) {
+  free(info->path);
+  free(info);
+}
+
 static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
   // TODO implement this
 }
