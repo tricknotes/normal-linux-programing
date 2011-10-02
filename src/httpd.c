@@ -124,7 +124,10 @@ static void free_request(struct HTTPRequest *req) {
 }
 
 static void upcase(char *str) {
-  // TODO implement this
+  int i;
+  for (i = 0; str[i]; i++) {
+    str[i] = toupper(str[i]);
+  }
 }
 
 static void read_request_line(struct HTTPRequest *req, FILE *in) {
