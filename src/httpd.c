@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -17,6 +18,7 @@ static struct HTTPRequest *read_request(FILE *in);
 static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot);
 #define MAX_REQUEST_BODY_LENGTH 1024
 #define LINE_BUF_SIZE 1024
+#define BLOCK_BUF_SIZE 1024
 
 typedef void (*sighandler_t)(int);
 
@@ -263,7 +265,7 @@ static void *free_fileinfo(struct FileInfo *info) {
   free(info);
 }
 
-static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
+static void not_found(struct HTTPRequest *req, FILE *out) {
   // TODO implement this
 }
 
@@ -273,6 +275,54 @@ static void method_not_allowd(struct HTTPRequest *req, FILE *out) {
 
 static void not_implemented(struct HTTPRequest *req, FILE *out) {
   // TODO implement this
+}
+
+static void output_common_header_fields(struct HTTPRequest *req, FILE *out, char *status) {
+  // TODO implement this
+}
+
+static char *guess_content_type(struct FileInfo *info) {
+  // TODO implement this
+}
+
+static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
+  struct FileInfo *info;
+
+  info = get_fileinfo(docroot, req->path);
+  if (!info->ok) {
+    free_fileinfo(info);
+    not_found(req, out);
+    return;
+  }
+  output_common_header_fields(req, out, "200 OK");
+  fprintf(out, "Content-Length: %ld\r\n", info->size);
+  fprintf(out, "Content-Type: %s\r\n", guess_content_type(info));
+  fprintf(out, "\r\n");
+  if (strcmp(req->method, "HEAD") != 0) {
+    int fd;
+    char buf[BLOCK_BUF_SIZE];
+    ssize_t n;
+
+    fd = open(info->path, O_RDONLY);
+    if (fd < 0) {
+      log_exit("failed to open %s: %s", info->path, strerror(errno));
+    }
+    while (1) {
+      n = read(fd, buf, BLOCK_BUF_SIZE);
+      if (n < 0) {
+          log_exit("failed to read %s: %s", info->path, strerror(errno));
+      }
+      if (n == 0) {
+        break;
+      }
+      if (fwrite(buf, n, 1, out) < n) {
+        log_exit("failed to write to socket: %s", strerror(errno));
+      }
+    }
+    close(fd);
+  }
+  fflush(out);
+  free_fileinfo(info);
 }
 
 static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
