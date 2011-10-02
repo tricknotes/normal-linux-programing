@@ -232,10 +232,6 @@ static struct HTTPRequest *read_request(FILE *in) {
   return req;
 }
 
-static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
-  // TODO implement this
-}
-
 static char *build_fspath(char *docroot, char *urlpath) {
   char *path;
 
@@ -260,4 +256,8 @@ static struct FileInfo *get_fileinfo(char *docroot, char *urlpath) {
   info->ok = 1;
   info->size = st.st_size;
   return info;
+}
+
+static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
+  // TODO implement this
 }
