@@ -10,8 +10,25 @@ static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
 static void install_signal_handlers(void);
 static void service(FILE *in, FILE *out, char *docroot);
+struct HTTPRequest;
+static void free_request(struct HTTPRequest *req);
 
 typedef void (*sighandler_t)(int);
+
+struct HTTPHeaderField {
+  char *name;
+  char *value;
+  struct HTTPHeaderField *next;
+};
+
+struct HTTPRequest {
+  int protocol_minor_version;
+  char *method;
+  char *path;
+  struct HTTPHeaderField *header;
+  char *body;
+  long length;
+};
 
 int main(int argc, char *argv[]) {
   if (argc != 2) {
