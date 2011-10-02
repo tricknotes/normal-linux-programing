@@ -169,7 +169,14 @@ static struct HTTPHeaderField *read_header_field(FILE *in) {
 }
 
 static char *lookup_header_field_value(struct HTTPRequest *req, char *type) {
-  // TODO implement this
+  struct HTTPHeaderField *h;
+
+  for (h = req->header; h; h = h->next) {
+    if (strcasecmp(h->name, type) == 0) {
+      return h->value;
+    }
+  }
+  return NULL;
 }
 
 static long content_length(struct HTTPRequest *req) {
