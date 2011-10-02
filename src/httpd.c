@@ -13,6 +13,7 @@ static void service(FILE *in, FILE *out, char *docroot);
 struct HTTPRequest;
 static void free_request(struct HTTPRequest *req);
 static struct HTTPRequest *read_request(FILE *in);
+static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot);
 #define MAX_REQUEST_BODY_LENGTH 1024
 #define LINE_BUF_SIZE 1024
 
@@ -83,7 +84,11 @@ static void install_signal_handlers(void) {
 }
 
 static void service(FILE *in, FILE *out, char *docroot) {
-  // TODO implement this
+  struct HTTPRequest *req;
+
+  req = read_request(in);
+  respond_to(req, out, docroot);
+  free_request(req);
 }
 
 static void free_request(struct HTTPRequest *req) {
@@ -218,4 +223,8 @@ static struct HTTPRequest *read_request(FILE *in) {
     req->body = NULL;
   }
   return req;
+}
+
+static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
+  // TODO implement this
 }
