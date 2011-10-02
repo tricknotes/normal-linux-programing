@@ -14,6 +14,7 @@ struct HTTPRequest;
 static void free_request(struct HTTPRequest *req);
 static struct HTTPRequest *read_request(FILE *in);
 #define MAX_REQUEST_BODY_LENGTH 1024
+#define LINE_BUF_SIZE 1024
 
 typedef void (*sighandler_t)(int);
 
@@ -103,8 +104,40 @@ static void free_request(struct HTTPRequest *req) {
   free(req);
 }
 
-static void read_request_line(struct HTTPRequest *req, FILE *in) {
+static void upcase(char *str) {
   // TODO impliment this
+}
+
+static void read_request_line(struct HTTPRequest *req, FILE *in) {
+  char buf[LINE_BUF_SIZE];
+  char *path, *p;
+
+  if(!fgets(buf, LINE_BUF_SIZE, in)) {
+    log_exit("no request line");
+  }
+  p = strchr(buf, ' ');
+  if (!p) {
+    log_exit("parse error on request line (1): %s", buf);
+  }
+  *p++ = '\0';
+  req->method = xmalloc(p - buf);
+  strcpy(req->method, buf);
+  upcase(req->method);
+
+  path = p;
+  p = strchr(path, ' ');
+  if (!p) {
+    log_exit("parse error on request line (2): %s", buf);
+  }
+  *p++ = '\0';
+  req->path = xmalloc(p - path);
+  strcpy(req->path, path);
+
+  if (strncasecmp(p, "HTTP/1.", strlen("HTTP/1.")) != 0) {
+    log_exit("parse error on request line (3): %s", buf);
+  }
+  p += strlen("HTTP/1.");
+  req->protocol_minor_version = atoi(p);
 }
 
 static struct HTTPHeaderField *read_header_field(FILE *in) {
