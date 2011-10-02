@@ -282,7 +282,8 @@ static void output_common_header_fields(struct HTTPRequest *req, FILE *out, char
 }
 
 static char *guess_content_type(struct FileInfo *info) {
-  // TODO implement this
+  // implement as stub
+  return "text/plain";
 }
 
 static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
