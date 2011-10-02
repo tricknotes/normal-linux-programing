@@ -258,6 +258,26 @@ static struct FileInfo *get_fileinfo(char *docroot, char *urlpath) {
   return info;
 }
 
-static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
+static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
   // TODO implement this
+}
+
+static void method_not_allowd(struct HTTPRequest *req, FILE *out) {
+  // TODO implement this
+}
+
+static void not_implemented(struct HTTPRequest *req, FILE *out) {
+  // TODO implement this
+}
+
+static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
+  if (strcmp(req->method, "GET") == 0) {
+    do_file_response(req, out, docroot);
+  } else if (strcmp(req->method, "HEAD") == 0) {
+    do_file_response(req, out, docroot);
+  } else if (strcmp(req->method, "POST") == 0) {
+    method_not_allowd(req, out);
+  } else {
+    not_implemented(req, out);
+  }
 }
