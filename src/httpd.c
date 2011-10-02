@@ -34,6 +34,12 @@ struct HTTPRequest {
   long length;
 };
 
+struct FileInfo {
+  char *path;
+  long size;
+  int ok;
+};
+
 int main(int argc, char *argv[]) {
   if (argc != 2) {
     fprintf(stderr, "Usage: %s <docroot>\n", argv[0]);
