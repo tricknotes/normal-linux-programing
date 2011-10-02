@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -233,4 +234,26 @@ static struct HTTPRequest *read_request(FILE *in) {
 
 static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
   // TODO implement this
+}
+
+static char *build_fspath(char *docroot, char *urlpath) {
+  // TODO implement this
+}
+
+static struct FileInfo *get_fileinfo(char *docroot, char *urlpath) {
+  struct FileInfo *info;
+  struct stat st;
+
+  info = xmalloc(sizeof(struct FileInfo));
+  info->path = build_fspath(docroot, urlpath);
+  info->ok = 0;
+  if (lstat(info->path, &st) < 0) {
+    return info;
+  }
+  if (!S_ISREG(st.st_mode)) {
+    return info;
+  }
+  info->ok = 1;
+  info->size = st.st_size;
+  return info;
 }
