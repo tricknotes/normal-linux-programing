@@ -2,9 +2,15 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stddef.h>
+#include <signal.h>
+#include <errno.h>
+#include <string.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
+static void install_signal_handlers(void);
+
+typedef void (*sighandler_t)(int);
 
 int main(int argc, char *argv[]) {
   // TODO impliment this
@@ -30,3 +36,21 @@ static void* xmalloc(size_t size) {
   return p;
 }
 
+static void trap_signal(int signal, sighandler_t handler) {
+  struct sigaction act;
+
+  act.sa_handler = handler;
+  sigemptyset(&act.sa_mask);
+  act.sa_flags = SA_RESTART;
+  if (sigaction(signal, &act, NULL) < 0) {
+    log_exit("sigaction() failed: %s", strerror(errno));
+  }
+}
+
+static void signal_exit(int signal) {
+  log_exit("exit by signal %d", signal);
+}
+
+static void install_signal_handlers(void) {
+  trap_signal(SIGPIPE, signal_exit);
+}
