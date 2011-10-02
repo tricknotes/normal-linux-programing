@@ -9,11 +9,18 @@
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
 static void install_signal_handlers(void);
+static void service(FILE *in, FILE *out, char *docroot);
 
 typedef void (*sighandler_t)(int);
 
 int main(int argc, char *argv[]) {
-  // TODO impliment this
+  if (argc != 2) {
+    fprintf(stderr, "Usage: %s <docroot>\n", argv[0]);
+    exit(1);
+  }
+  install_signal_handlers();
+  service(stdin, stdout, argv[1]);
+  exit(0);
 }
 
 static void log_exit(char *fmt, ...) {
@@ -53,4 +60,8 @@ static void signal_exit(int signal) {
 
 static void install_signal_handlers(void) {
   trap_signal(SIGPIPE, signal_exit);
+}
+
+static void service(FILE *in, FILE *out, char *docroot) {
+  // TODO impliment this
 }
