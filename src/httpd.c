@@ -334,7 +334,7 @@ static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) 
       if (n == 0) {
         break;
       }
-      if (fwrite(buf, n, 1, out) < n) {
+      if (fwrite(buf, n, 1, out) < 1) {
         log_exit("failed to write to socket: %s", strerror(errno));
       }
     }
