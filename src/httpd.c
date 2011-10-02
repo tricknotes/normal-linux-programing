@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <time.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -19,6 +20,10 @@ static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot);
 #define MAX_REQUEST_BODY_LENGTH 1024
 #define LINE_BUF_SIZE 1024
 #define BLOCK_BUF_SIZE 1024
+#define HTTP_MINOR_VERSION 1
+#define TIME_BUF_SIZE 64
+#define SERVER_NAME "tricknotes"
+#define SERVER_VERSION "1.0"
 
 typedef void (*sighandler_t)(int);
 
@@ -278,7 +283,20 @@ static void not_implemented(struct HTTPRequest *req, FILE *out) {
 }
 
 static void output_common_header_fields(struct HTTPRequest *req, FILE *out, char *status) {
-  // TODO implement this
+  time_t t;
+  struct tm *tm;
+  char buf[TIME_BUF_SIZE];
+
+  t = time(NULL);
+  tm = gmtime(&t);
+  if (!tm) {
+    log_exit("gmtime() failed: %s", strerror(errno));
+  }
+  strftime(buf, TIME_BUF_SIZE, "%a, %d %b %Y %H:%M:%S GMT", tm);
+  fprintf(out, "HTTP/1.%d %s\r\n", HTTP_MINOR_VERSION, status);
+  fprintf(out, "Date: %s\r\n", buf);
+  fprintf(out, "Server: %s\r\n", SERVER_NAME, SERVER_VERSION);
+  fprintf(out, "Connection: close\r\n");
 }
 
 static char *guess_content_type(struct FileInfo *info) {
