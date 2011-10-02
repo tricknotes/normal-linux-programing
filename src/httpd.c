@@ -83,7 +83,7 @@ static void install_signal_handlers(void) {
 }
 
 static void service(FILE *in, FILE *out, char *docroot) {
-  // TODO impliment this
+  // TODO implement this
 }
 
 static void free_request(struct HTTPRequest *req) {
@@ -105,7 +105,7 @@ static void free_request(struct HTTPRequest *req) {
 }
 
 static void upcase(char *str) {
-  // TODO impliment this
+  // TODO implement this
 }
 
 static void read_request_line(struct HTTPRequest *req, FILE *in) {
@@ -141,11 +141,11 @@ static void read_request_line(struct HTTPRequest *req, FILE *in) {
 }
 
 static struct HTTPHeaderField *read_header_field(FILE *in) {
-  // TODO impliment this
+  // TODO implement this
 }
 
 static long content_length(struct HTTPRequest *req) {
-  // TODO impliment this
+  // TODO implement this
 }
 
 static struct HTTPRequest *read_request(FILE *in) {
