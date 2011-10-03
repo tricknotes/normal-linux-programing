@@ -443,8 +443,7 @@ static int listen_socket(char *port) {
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
   if ((err = getaddrinfo(NULL, port, &hints, &res)) != 0) {
-    // TODO log_exit(gai_strerror(err));
-    log_exit("TODO apply: log_exit(gai_strerror(err));");
+    log_exit("getaddrinfo() failed: %s", gai_strerror(err));
   }
   for (ai = res; ai; ai = ai->ai_next) {
     int sock;
