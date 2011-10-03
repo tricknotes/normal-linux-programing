@@ -9,6 +9,8 @@
 #include <fcntl.h>
 #include <time.h>
 #include <getopt.h>
+#include <sys/socket.h>
+#include <netdb.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -25,6 +27,8 @@ static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot);
 #define TIME_BUF_SIZE 64
 #define SERVER_NAME "tricknotes"
 #define SERVER_VERSION "1.0"
+#define MAX_BACKLOG 5
+#define DEFAULT_PORT "80"
 
 typedef void (*sighandler_t)(int);
 
@@ -435,7 +439,37 @@ static void openlog(char *server_name, int pid, char *log) {
 }
 
 static int listen_socket(char *port) {
-  // TODO implement this
+  struct addrinfo hints, *res, *ai;
+  int err;
+
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
+  if ((err = getaddrinfo(NULL, port, &hints, &res)) != 0) {
+    // TODO log_exit(gai_strerror(err));
+    log_exit("TODO apply: log_exit(gai_strerror(err));");
+  }
+  for (ai = res; ai; ai = ai->ai_next) {
+    int sock;
+
+    sock = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+    if (sock < 0) {
+      continue;
+    }
+    if (bind(sock, ai->ai_addr, ai->ai_addrlen) < 0) {
+      close(sock);
+      continue;
+    }
+    if (listen(sock, MAX_BACKLOG) < 0) {
+      close(sock);
+      continue;
+    }
+    freeaddrinfo(res);
+    return sock;
+  }
+  log_exit("failed to listen socket");
+  return -1; /* NOT REACH */
 }
 
 static void server_main(int server, char *docroot) {
