@@ -185,7 +185,6 @@ static void free_request(struct HTTPRequest *req) {
     head = head->next;
     free(h->name);
     free(h->value);
-    free(h->value);
     free(h);
   }
   free(req->method);
