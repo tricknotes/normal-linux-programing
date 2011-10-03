@@ -64,7 +64,7 @@ static void become_daemon(void);
 static int debug_mode = 0;
 
 static struct option longopts[] = {
-  {"debug",  no_argument,       &debug_mode, 1},
+  {"debug",  no_argument,       &debug_mode, 'd'},
   {"chroot", no_argument,       NULL, 'c'},
   {"user",   required_argument, NULL, 'u'},
   {"group",  required_argument, NULL, 'g'},
@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
   char *group = NULL;
   int opt;
 
-  while ((opt = getopt_long(argc, argv, "", longopts, NULL)) != -1) {
+  while ((opt = getopt_long(argc, argv, "p:h:", longopts, NULL)) != -1) {
     switch (opt) {
       case 0:
         break;
