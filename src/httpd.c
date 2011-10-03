@@ -12,6 +12,9 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <syslog.h>
+#include <unistd.h>
+#include <grp.h>
+#include <pwd.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -431,7 +434,33 @@ static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
 }
 
 static void setup_environment(char *docroot, char *user, char *group) {
-  // TODO implement this
+  struct passwd *pw;
+  struct group *gr;
+
+  if (!user || !group) {
+    log_exit("use both of --user and --group");
+  }
+  gr = getgrnam(group);
+  if (!gr) {
+    log_exit("no such group: %s", group);
+  }
+  if (setgid(gr->gr_gid) < 0) {
+    perror("setgid(2)");
+    exit(1);
+  }
+  if (initgroups(user, gr->gr_gid) < 0) {
+    perror("initgroups(2)");
+    exit(1);
+  }
+  pw = getpwnam(user);
+  if (!pw) {
+    log_exit("no such user: %s", user);
+  }
+  chroot(docroot);
+  if (setuid(pw->pw_uid) < 0) {
+    perror("setuid(2)");
+    exit(1);
+  }
 }
 
 static int listen_socket(char *port) {
