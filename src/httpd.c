@@ -11,6 +11,7 @@
 #include <getopt.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <syslog.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -54,12 +55,8 @@ struct FileInfo {
 };
 
 #define USAGE "Usage: %s [--port=n] [--chroot --user=u --group=g] [--debug] <docroot>\n"
-#define LOG_PID 1101
-#define LOG_NDELAY 1
-#define LOG_DAEMON "./log_file"
 
 static void setup_environment(char *docroot, char *user, char *group);
-static void openlog(char *server_name, int pid, char *log);
 static int listen_socket(char *port);
 static void server_main(int server, char *docroot);
 static void become_daemon(void);
@@ -133,8 +130,12 @@ static void log_exit(char *fmt, ...) {
   va_list ap;
 
   va_start(ap, fmt);
-  vfprintf(stderr, fmt, ap);
-  fputc('\n', stderr);
+  if (debug_mode) {
+    vfprintf(stderr, fmt, ap);
+    fputc('\n', stderr);
+  } else {
+    vsyslog(LOG_ERR, fmt, ap);
+  }
   va_end(ap);
   exit(1);
 }
@@ -430,10 +431,6 @@ static void respond_to(struct HTTPRequest *req, FILE *out, char *docroot) {
 }
 
 static void setup_environment(char *docroot, char *user, char *group) {
-  // TODO implement this
-}
-
-static void openlog(char *server_name, int pid, char *log) {
   // TODO implement this
 }
 
