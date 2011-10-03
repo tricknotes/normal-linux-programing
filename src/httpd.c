@@ -473,7 +473,29 @@ static int listen_socket(char *port) {
 }
 
 static void server_main(int server, char *docroot) {
-  // TODO implement this
+  while (1) {
+    struct sockaddr_storage addr;
+    socklen_t addrlen  = sizeof addr;
+    int sock;
+    int pid;
+
+    sock = accept(server, (struct sockaddr*)&addr, &addrlen);
+    if (sock < 0) {
+      log_exit("accept(2) failed: %s", strerror(errno));
+    }
+    pid = fork();
+    if (pid < 0) {
+      exit(3);
+    }
+    if (pid == 0) { /* child */
+      FILE *in = fdopen(sock, "r");
+      FILE *out = fdopen(sock, "w");
+
+      service(in, out, docroot);
+      exit(0);
+    }
+    close(sock);
+  }
 }
 
 static void become_daemon(void) {
