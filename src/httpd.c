@@ -15,6 +15,7 @@
 #include <unistd.h>
 #include <grp.h>
 #include <pwd.h>
+#include <regex.h>
 
 static void log_exit(char *fmt, ...);
 static void* xmalloc(size_t size);
@@ -377,8 +378,53 @@ static void not_implemented(struct HTTPRequest *req, FILE *out) {
 }
 
 static char *guess_content_type(struct FileInfo *info) {
-  // implement as stub
-  return "text/plain";
+  regex_t pat;
+  int err;
+  size_t match_size = 2;
+  regmatch_t match[match_size];
+  char *path = info->path;
+
+  err = regcomp(&pat, "\\.(.+)$", REG_ICASE | REG_EXTENDED);
+  if (err != 0) {
+    log_exit("regcomp failed: %i", err);
+  }
+
+  err = regexec(&pat, path, match_size, match, 0);
+  if (err != 0) {
+    if (err == REG_NOMATCH) {
+      return "application/octet-stream";
+    }
+    log_exit("regexec failed: %i", err);
+  }
+
+  int start_i = match[1].rm_so;
+  int end_i = match[1].rm_eo;
+  char ext[end_i - start_i + 1];
+  int i;
+  for (i = start_i; i < end_i; i++) {
+    ext[i - start_i] = path[i];
+  }
+
+  regfree(&pat);
+
+  // supported content-type
+  if (strcmp(ext, "txt") == 0) {
+    return "text/plain";
+  }
+  if (strcmp(ext, "png") == 0) {
+    return "image/png";
+  }
+  if (strcmp(ext, "html") == 0) {
+    return "text/html";
+  }
+  if (strcmp(ext, "css") == 0) {
+    return "text/css";
+  }
+  if (strcmp(ext, "js") == 0) {
+    return "text/javascript";
+  }
+
+  return "application/octet-stream";
 }
 
 static void do_file_response(struct HTTPRequest *req, FILE *out, char *docroot) {
